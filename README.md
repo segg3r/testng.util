@@ -22,7 +22,7 @@ Then it can be easily tested, using following test:
 @Listeners(ApplicationContextListener.class)
 @ContextConfiguration(
   realObjects = { Service.class, RealService.class },
-  spies = SpiedService.class
+  spies = SpiedService.class)
 class ServiceTest {
   @Autowired
   Service service;

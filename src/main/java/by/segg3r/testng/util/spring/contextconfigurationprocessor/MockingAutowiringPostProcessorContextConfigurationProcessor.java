@@ -1,5 +1,7 @@
 package by.segg3r.testng.util.spring.contextconfigurationprocessor;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -11,9 +13,9 @@ public class MockingAutowiringPostProcessorContextConfigurationProcessor
 		implements ContextConfigurationProcessor {
 
 	@Override
-	public void process(
+	public ContextConfigurationProcessingResult process(
 			AnnotationConfigApplicationContext applicationContext,
-			ContextConfiguration contextConfiguration) {
+			Optional<ContextConfiguration> contextConfiguration, Object suite) {
 		AutowiredAnnotationBeanPostProcessor autowiringPostProcessor = new MockAutowiredAnnotationBeanPostProcessor();
 		ConfigurableListableBeanFactory beanFactory = applicationContext
 				.getBeanFactory();
@@ -22,6 +24,8 @@ public class MockingAutowiringPostProcessorContextConfigurationProcessor
 				.registerSingleton(
 						"org.springframework.context.annotation.internalAutowiredAnnotationProcessor",
 						autowiringPostProcessor);
+		
+		return ContextConfigurationProcessingResult.empty();
 	}
 
 }

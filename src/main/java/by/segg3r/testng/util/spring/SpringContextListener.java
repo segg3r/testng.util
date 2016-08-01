@@ -2,6 +2,7 @@ package by.segg3r.testng.util.spring;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mockito.Mockito;
@@ -15,20 +16,22 @@ import org.testng.ITestClass;
 import org.testng.ITestResult;
 
 import by.segg3r.testng.util.TestClassListener;
-import by.segg3r.testng.util.exception.ListenerException;
+import by.segg3r.testng.util.spring.contextconfigurationprocessor.ContextConfigurationProcessingResult;
 import by.segg3r.testng.util.spring.contextconfigurationprocessor.ContextConfigurationProcessor;
 import by.segg3r.testng.util.spring.contextconfigurationprocessor.JavaConfigClassesContextConfigurationProcessor;
 import by.segg3r.testng.util.spring.contextconfigurationprocessor.MockingAutowiringPostProcessorContextConfigurationProcessor;
+import by.segg3r.testng.util.spring.contextconfigurationprocessor.MocksContextConfigurationProcessor;
 import by.segg3r.testng.util.spring.contextconfigurationprocessor.RealObjectsContextConfigurationProcessor;
 import by.segg3r.testng.util.spring.contextconfigurationprocessor.SpiesContextConfigurationProcessor;
+import by.segg3r.testng.util.spring.exception.SpringContextListenerException;
 
 import com.google.common.collect.Lists;
 
 /**
  * 
- * Listener, which instantiates Spring context. Test class should be also annotated with
- * {@link by.segg3r.testng.util.spring.ContextConfiguration @ContextConfiguration},
- * which provides beans data for Spring context.
+ * Listener, which instantiates Spring context. Test class should be also
+ * annotated with {@link by.segg3r.testng.util.spring.ContextConfiguration
+ * @ContextConfiguration}, which provides beans data for Spring context.
  * 
  * @see by.segg3r.testng.util.spring.ContextConfiguration
  * 
@@ -42,6 +45,7 @@ public class SpringContextListener implements TestClassListener {
 					new JavaConfigClassesContextConfigurationProcessor(),
 					new RealObjectsContextConfigurationProcessor(),
 					new SpiesContextConfigurationProcessor(),
+					new MocksContextConfigurationProcessor(),
 					new MockingAutowiringPostProcessorContextConfigurationProcessor());
 
 	private final Map<Object, GenericApplicationContext> applicationContexts;
@@ -57,25 +61,35 @@ public class SpringContextListener implements TestClassListener {
 
 	@Override
 	public void onBeforeClass(ITestClass testClass, IMethodInstance method) {
-		if (initialized) {
-			return;
+		try {
+			if (initialized) {
+				return;
+			}
+
+			Object[] suites = testClass.getInstances(true);
+			for (Object suite : suites) {
+				ApplicationContextInitializationResult applicationContextInitializationResult = initializeApplicationContext(suite);
+				GenericApplicationContext applicationContext = applicationContextInitializationResult.getApplicationContext();
+				List<Object> autowiringCandidates = applicationContextInitializationResult.getAutowiringCandidates();
+				
+				processAutowiredAnnotations(suite, applicationContext);
+				for (Object autowiringCandidate : autowiringCandidates) {
+					processAutowiredAnnotations(autowiringCandidate, applicationContext);
+				}
+				applicationContexts.put(suite, applicationContext);
+			}
+
+			invokedMethodsCounter = testClass.getTestMethods().length;
+			initialized = true;
+		} catch (Exception e) {
+			throw new SpringContextListenerException("Could not configure test suite", e);
 		}
-			
-		Object[] suites = testClass.getInstances(true);
-		for (Object suite : suites) {
-			GenericApplicationContext applicationContext = initializeApplicationContext(suite);
-			processAutowiredAnnotations(suite, applicationContext);
-			applicationContexts.put(suite, applicationContext);
-		}
-		
-		invokedMethodsCounter = testClass.getTestMethods().length;
-		initialized = true;
 	}
 
 	@Override
 	public void onAfterTest(ITestResult testResult) {
 		invokedMethodsCounter--;
-		
+
 		Object suite = testResult.getInstance();
 		ApplicationContext applicationContext = applicationContexts.get(suite);
 
@@ -98,21 +112,21 @@ public class SpringContextListener implements TestClassListener {
 		}
 	}
 
-	private GenericApplicationContext initializeApplicationContext(Object suite) {
+	private ApplicationContextInitializationResult initializeApplicationContext(Object suite)
+			throws Exception {
+		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		List<Object> autowiringCandidates = Lists.newArrayList();
+		
 		ContextConfiguration contextConfiguration = suite.getClass()
 				.getAnnotation(ContextConfiguration.class);
-		if (contextConfiguration == null) {
-			throw new ListenerException(
-					"Suite class should be annotated with @SpringJavaConfiguration");
-		}
-
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
 		for (ContextConfigurationProcessor processor : CONTEXT_CONFIGURATION_PROCESSORS) {
-			processor.process(applicationContext, contextConfiguration);
+			ContextConfigurationProcessingResult processorResult = processor.process(applicationContext, Optional.ofNullable(contextConfiguration), suite);
+			autowiringCandidates.addAll(processorResult.getAutowiringCandidates());
 		}
+		
 		applicationContext.refresh();
 
-		return applicationContext;
+		return new ApplicationContextInitializationResult(applicationContext, autowiringCandidates);
 	}
 
 	private void processAutowiredAnnotations(Object suite,

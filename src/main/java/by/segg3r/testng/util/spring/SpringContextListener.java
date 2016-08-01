@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
  * @author segg3r
  *
  */
-public class SpringListener implements TestClassListener {
+public class SpringContextListener implements TestClassListener {
 
 	private final static List<ContextConfigurationProcessor> CONTEXT_CONFIGURATION_PROCESSORS = Lists
 			.newArrayList(
@@ -50,7 +50,7 @@ public class SpringListener implements TestClassListener {
 	private boolean initialized;
 	private int invokedMethodsCounter;
 
-	public SpringListener() {
+	public SpringContextListener() {
 		this.applicationContexts = new ConcurrentHashMap<>();
 		this.mockUtil = new MockUtil();
 	}

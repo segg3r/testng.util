@@ -16,12 +16,12 @@ import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.RealServ
 import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.Service;
 import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.SpiedService;
 
-@Listeners(SpringListener.class)
+@Listeners(SpringContextListener.class)
 @ContextConfiguration(
 		configClasses = TestApplicationContextConfiguration.class,
 		realObjects = RealService.class,
 		spies = SpiedService.class)
-public class SpringListenerTest {
+public class SpringContextListenerTest {
 
 	private MockUtil mockUtil = new MockUtil();
 

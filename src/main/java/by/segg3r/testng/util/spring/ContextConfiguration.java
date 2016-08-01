@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * 
  * Provides data for Spring context initialization, if this test class is also
- * annotated with {@link by.segg3r.testng.util.spring.SpringListener @SpringListener}.
+ * annotated with {@link by.segg3r.testng.util.spring.SpringContextListener @SpringListener}.
  * <br>
  * <br>
  * All classes specified under <b>configClasses</b> field should be annotated with

@@ -29,11 +29,20 @@ import com.google.common.collect.Lists;
 
 /**
  * 
- * Listener, which instantiates Spring context. Test class should be also
- * annotated with {@link by.segg3r.testng.util.spring.ContextConfiguration
- * @ContextConfiguration}, which provides beans data for Spring context.
+ * Listener, which instantiates Spring context. <br>
+ * There are currently two ways of configure beans in this context: <br>
+ * <br>
+ * <b>1.</b> Test class can be annotated with
+ * {@link by.segg3r.testng.util.spring.ContextConfiguration @ContextConfiguration}, which provides beans data for Spring context. <br>
+ * <b>2.</b> Fields of test suite can be annotated with one of injection annotations. Check
+ * {@link by.segg3r.testng.util.spring.annotations.Real @Real},
+ * {@link by.segg3r.testng.util.spring.annotations.Spied @Spied} and
+ * {@link by.segg3r.testng.util.spring.annotations.Mocked @Mocked} annotations.
  * 
  * @see by.segg3r.testng.util.spring.ContextConfiguration
+ * @see by.segg3r.testng.util.spring.annotations.Real
+ * @see by.segg3r.testng.util.spring.annotations.Spied
+ * @see by.segg3r.testng.util.spring.annotations.Mocked
  * 
  * @author segg3r
  *

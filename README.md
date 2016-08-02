@@ -32,9 +32,6 @@ class ServiceTest {
 Or using even more simple initialization:
 ```java
 @Listeners(ApplicationContextListener.class)
-@ContextConfiguration(
-  realObjects = { Service.class, RealService.class },
-  spies = SpiedService.class)
 class ServiceTest {
   @Real
   Service service;

@@ -1,8 +1,10 @@
 package by.segg3r.testng.util.spring;
 
 import static org.testng.Assert.*;
+
 import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
@@ -20,6 +22,9 @@ public class SpringContextListenerInjectionTest {
 	@Mocked
 	private MockedDao mockedDao;
 	
+	@Autowired
+	private ApplicationContext applicationContext;
+	
 	@Test(description = "should correctly configure ApplicationContext from custom directives and inject fields")
 	public void testApplicationContextConfigurationAndInjection() {
 		MockUtil mockUtil = new MockUtil();
@@ -30,6 +35,11 @@ public class SpringContextListenerInjectionTest {
 		
 		assertEquals(spiedDao, service.spiedDao);
 		assertEquals(mockedDao, service.mockedDao);
+	}
+	
+	@Test(description = "should correctly inject application context")
+	public void testApplicationContextInjection() {
+		assertEquals(applicationContext.getBean(SpiedDao.class), spiedDao);
 	}
 	
 	public static class Service {

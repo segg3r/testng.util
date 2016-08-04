@@ -58,25 +58,24 @@ public class SpringContextListener implements TestClassListener {
 					new MockingAutowiringPostProcessorContextConfigurationProcessor());
 
 	private final Map<Object, GenericApplicationContext> applicationContexts;
+	private final Map<Object, Integer> invokedMethods;
 	private final MockUtil mockUtil;
-
-	private boolean initialized;
-	private int invokedMethodsCounter;
 
 	public SpringContextListener() {
 		this.applicationContexts = new ConcurrentHashMap<>();
 		this.mockUtil = new MockUtil();
+		this.invokedMethods = new ConcurrentHashMap<>();
 	}
 
 	@Override
 	public void onBeforeClass(ITestClass testClass, IMethodInstance method) {
 		try {
-			if (initialized) {
-				return;
-			}
-
 			Object[] suites = testClass.getInstances(true);
 			for (Object suite : suites) {
+				if (applicationContexts.get(suite) != null) {
+					continue;
+				}
+				
 				ApplicationContextInitializationResult applicationContextInitializationResult = initializeApplicationContext(suite);
 				GenericApplicationContext applicationContext = applicationContextInitializationResult.getApplicationContext();
 				List<Object> autowiringCandidates = applicationContextInitializationResult.getAutowiringCandidates();
@@ -86,10 +85,8 @@ public class SpringContextListener implements TestClassListener {
 					processAutowiredAnnotations(autowiringCandidate, applicationContext);
 				}
 				applicationContexts.put(suite, applicationContext);
+				invokedMethods.put(suite, testClass.getTestMethods().length);
 			}
-
-			invokedMethodsCounter = testClass.getTestMethods().length;
-			initialized = true;
 		} catch (Exception e) {
 			throw new SpringContextListenerException("Could not configure test suite", e);
 		}
@@ -97,11 +94,10 @@ public class SpringContextListener implements TestClassListener {
 
 	@Override
 	public void onAfterTest(ITestResult testResult) {
-		invokedMethodsCounter--;
-
 		Object suite = testResult.getInstance();
 		ApplicationContext applicationContext = applicationContexts.get(suite);
-
+		invokedMethods.put(suite, invokedMethods.get(suite) - 1);
+		
 		String[] beanNames = applicationContext.getBeanDefinitionNames();
 		for (String beanName : beanNames) {
 			Object bean = applicationContext.getBean(beanName);
@@ -113,10 +109,9 @@ public class SpringContextListener implements TestClassListener {
 
 	@Override
 	public void onAfterClass(ITestClass testClass, IMethodInstance method) {
-		if (invokedMethodsCounter == 0) {
-			for (GenericApplicationContext applicationContext : applicationContexts
-					.values()) {
-				applicationContext.close();
+		for (Object suite : applicationContexts.keySet()) {
+			if (invokedMethods.get(suite) == 0) {
+				applicationContexts.get(suite).close();
 			}
 		}
 	}

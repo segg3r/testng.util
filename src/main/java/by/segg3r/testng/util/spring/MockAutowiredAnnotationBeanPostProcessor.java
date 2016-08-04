@@ -14,14 +14,24 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class MockAutowiredAnnotationBeanPostProcessor extends AutowiredAnnotationBeanPostProcessor {
 
 	private static final MockUtil MOCK_UTIL = new MockUtil();
 	
+	private ApplicationContext applicationContext;
+	
+	public MockAutowiredAnnotationBeanPostProcessor(
+			AnnotationConfigApplicationContext applicationContext) {
+		super();
+		this.applicationContext = applicationContext;
+	}
+
 	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		BeanFactory mockProvidingFactory = new MockProvidingListableBeanFactory(beanFactory);
+		BeanFactory mockProvidingFactory = new MockProvidingListableBeanFactory(applicationContext, beanFactory);
 		super.setBeanFactory(mockProvidingFactory);
 	}
 	
@@ -40,14 +50,21 @@ public class MockAutowiredAnnotationBeanPostProcessor extends AutowiredAnnotatio
 
 	private static final class MockProvidingListableBeanFactory extends DefaultListableBeanFactory {
 		
-		public MockProvidingListableBeanFactory(BeanFactory delegate) {
+		private ApplicationContext applicationContext;
+		
+		public MockProvidingListableBeanFactory(ApplicationContext applicationContext, BeanFactory delegate) {
 			super(delegate);
+			this.applicationContext = applicationContext;
 		}
 
 		@Override
 		public Object resolveDependency(DependencyDescriptor descriptor,
 				String beanName, Set<String> autowiredBeanNames,
 				TypeConverter typeConverter) throws BeansException {
+			if (descriptor.getField().getType().equals(ApplicationContext.class)) {
+				return applicationContext;
+			}
+			
 			Optional<Object> delegateDependency = resolveDelegatedDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
 			return delegateDependency.isPresent()
 					? delegateDependency.get()

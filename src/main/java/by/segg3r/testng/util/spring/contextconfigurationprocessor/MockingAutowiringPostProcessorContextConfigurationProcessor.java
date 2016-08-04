@@ -16,7 +16,7 @@ public class MockingAutowiringPostProcessorContextConfigurationProcessor
 	public ContextConfigurationProcessingResult process(
 			AnnotationConfigApplicationContext applicationContext,
 			Optional<ContextConfiguration> contextConfiguration, Object suite) {
-		AutowiredAnnotationBeanPostProcessor autowiringPostProcessor = new MockAutowiredAnnotationBeanPostProcessor();
+		AutowiredAnnotationBeanPostProcessor autowiringPostProcessor = new MockAutowiredAnnotationBeanPostProcessor(applicationContext);
 		ConfigurableListableBeanFactory beanFactory = applicationContext
 				.getBeanFactory();
 		autowiringPostProcessor.setBeanFactory(beanFactory);

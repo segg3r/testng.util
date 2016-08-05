@@ -98,9 +98,8 @@ public class SpringContextListener implements TestClassListener {
 		ApplicationContext applicationContext = applicationContexts.get(suite);
 		invokedMethods.put(suite, invokedMethods.get(suite) - 1);
 		
-		String[] beanNames = applicationContext.getBeanDefinitionNames();
-		for (String beanName : beanNames) {
-			Object bean = applicationContext.getBean(beanName);
+		Map<String, Object> beans = applicationContext.getBeansOfType(Object.class);
+		for (Object bean : beans.values()) {
 			if (mockUtil.isMock(bean) || mockUtil.isSpy(bean)) {
 				Mockito.reset(bean);
 			}

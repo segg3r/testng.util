@@ -1,5 +1,6 @@
 package by.segg3r.testng.util.spring;
 
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import org.mockito.internal.util.MockUtil;
@@ -42,6 +43,18 @@ public class SpringContextListenerInjectionTest {
 		assertEquals(applicationContext.getBean(SpiedDao.class), spiedDao);
 	}
 	
+	@Test(description = "should have been called once")
+	public void testShouldHaveBeenCalledOnce() {
+		mockedDao.call();
+		verify(mockedDao).call();
+	}
+	
+	@Test(description = "should have been reset")
+	public void testShouldHaveBeenReset() {
+		mockedDao.call();
+		verify(mockedDao, times(1)).call();
+	}
+	
 	public static class Service {
 		@Autowired
 		private SpiedDao spiedDao;
@@ -53,6 +66,7 @@ public class SpringContextListenerInjectionTest {
 	}
 
 	public static class MockedDao {
+		public void call() {}
 	}
 	
 }

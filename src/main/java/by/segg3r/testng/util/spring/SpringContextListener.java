@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -86,6 +87,8 @@ public class SpringContextListener implements TestClassListener {
 				}
 				applicationContexts.put(suite, applicationContext);
 				invokedMethods.put(suite, testClass.getTestMethods().length);
+				
+				MockitoAnnotations.initMocks(suite);
 			}
 		} catch (Exception e) {
 			throw new SpringContextListenerException("Could not configure test suite", e);
@@ -110,7 +113,10 @@ public class SpringContextListener implements TestClassListener {
 	public void onAfterClass(ITestClass testClass, IMethodInstance method) {
 		for (Object suite : applicationContexts.keySet()) {
 			if (invokedMethods.get(suite) == 0) {
-				applicationContexts.get(suite).close();
+				GenericApplicationContext applicationContext = applicationContexts.get(suite);
+				if (applicationContext.isActive()) {
+					applicationContext.close();
+				}
 			}
 		}
 	}

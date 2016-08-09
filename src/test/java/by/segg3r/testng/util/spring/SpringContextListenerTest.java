@@ -7,6 +7,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertNotNull;
 
+import org.mockito.Mock;
 import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.Listeners;
@@ -30,6 +31,14 @@ public class SpringContextListenerTest {
 	
 	@Autowired
 	private Service service;
+	
+	@Mock
+	private Object mockedObject;
+	
+	@Test(description = "should trigger initAnnotations")
+	public void testMockitoAnnotations() {
+		assertTrue(mockUtil.isMock(mockedObject));
+	}
 	
 	@Test(description = "should inject values from application context")
 	public void testInjection() {

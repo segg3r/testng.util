@@ -98,7 +98,11 @@ public class SpringContextListener implements TestClassListener {
 	@Override
 	public void onAfterTest(ITestResult testResult) {
 		Object suite = testResult.getInstance();
-		ApplicationContext applicationContext = applicationContexts.get(suite);
+		GenericApplicationContext applicationContext = applicationContexts.get(suite);
+		if (!applicationContext.isActive()) {
+			return;
+		}
+		
 		invokedMethods.put(suite, invokedMethods.get(suite) - 1);
 		
 		Map<String, Object> beans = applicationContext.getBeansOfType(Object.class);

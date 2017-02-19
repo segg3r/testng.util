@@ -12,19 +12,25 @@ import by.segg3r.testng.util.spring.MockAutowiredAnnotationBeanPostProcessor;
 public class MockingAutowiringPostProcessorContextConfigurationProcessor
 		implements ContextConfigurationProcessor {
 
+	private static final String INTERNAL_AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME
+			= "org.springframework.context.annotation.internalAutowiredAnnotationProcessor";
+
 	@Override
 	public ContextConfigurationProcessingResult process(
 			AnnotationConfigApplicationContext applicationContext,
 			Optional<ContextConfiguration> contextConfiguration, Object suite) {
-		AutowiredAnnotationBeanPostProcessor autowiringPostProcessor = new MockAutowiredAnnotationBeanPostProcessor(applicationContext);
 		ConfigurableListableBeanFactory beanFactory = applicationContext
 				.getBeanFactory();
-		autowiringPostProcessor.setBeanFactory(beanFactory);
-		beanFactory
-				.registerSingleton(
-						"org.springframework.context.annotation.internalAutowiredAnnotationProcessor",
-						autowiringPostProcessor);
-		
+
+		if (beanFactory.getSingleton(INTERNAL_AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME) == null) {
+			AutowiredAnnotationBeanPostProcessor autowiringPostProcessor = new MockAutowiredAnnotationBeanPostProcessor(applicationContext);
+			autowiringPostProcessor.setBeanFactory(beanFactory);
+			beanFactory
+					.registerSingleton(
+							INTERNAL_AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME,
+							autowiringPostProcessor);
+		}
+
 		return ContextConfigurationProcessingResult.empty();
 	}
 

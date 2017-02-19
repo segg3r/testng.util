@@ -40,7 +40,7 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 			ContextConfiguration contextConfiguration) throws Exception {
 		Class<?>[] classes = getContextConfigurationClasses(contextConfiguration);
 		for (Class<?> clazz : classes) {
-			registerSingleton(applicationContext, clazz,
+			findOrRegisterSingleton(applicationContext, clazz,
 					clazz.getCanonicalName());
 		}
 	}
@@ -57,7 +57,7 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 					Class<?> realObjectClass = field.getType();
 					String singletonName = realObjectClass.getCanonicalName()
 							+ field.getName();
-					Object singleton = registerSingleton(applicationContext,
+					Object singleton = findOrRegisterSingleton(applicationContext,
 							realObjectClass, singletonName);
 
 					field.setAccessible(true);
@@ -78,15 +78,19 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 		return autowiringCandidates;
 	}
 
-	private Object registerSingleton(
+	private Object findOrRegisterSingleton(
 			AnnotationConfigApplicationContext applicationContext,
 			Class<?> clazz, String beanName) throws Exception {
 		ConfigurableListableBeanFactory beanFactory = applicationContext
 				.getBeanFactory();
 
+		Object existingSingleton = beanFactory.getSingleton(beanName);
+		if (existingSingleton != null) {
+			return existingSingleton;
+		}
+
 		Object realObject = createSingleton(clazz);
 		beanFactory.registerSingleton(beanName, realObject);
-
 		return realObject;
 	}
 

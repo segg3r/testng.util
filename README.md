@@ -3,7 +3,7 @@ Provides useful integrations with [Mockito](http://mockito.org/) and [Spring](ht
 for [TestNG](http://testng.org/) test runner.
 Feel free to include it into your project using [JitPack](https://jitpack.io/).
 
-## ApplicationContextListener
+## SpringContextListener
 Allows you quickly build and run the test against application context, filled either with real objects,
 or mocks and spies instead.
 Consider having following class composition:
@@ -17,21 +17,9 @@ class Service {
   RealService realService;
 }
 ```
-Then it can be easily tested, using following test:
+Then it can be tested, using following testNG test suite:
 ```java
-@Listeners(ApplicationContextListener.class)
-@ContextConfiguration(
-  realObjects = { Service.class, RealService.class },
-  spies = SpiedService.class)
-class ServiceTest {
-  @Autowired
-  Service service;
-  ...
-}
-```
-Or using even more simple initialization:
-```java
-@Listeners(ApplicationContextListener.class)
+@Listeners(SpringContextListener.class)
 class ServiceTest {
   @Real
   Service service;
@@ -42,3 +30,12 @@ class ServiceTest {
   ...
 }
 ```
+
+It also supports defining required Application context using @Configuration classes.
+```java
+@Listeners(SpringContextListener.class)
+@ContextConfiguration(configClasses = SomeSpringConfigurationClass.class)
+...
+```
+
+Tests can be organized using hierarchy of classes and interfaces (e.g. your test suite can implement interface or extend class with @ContextConfiguration annotation).

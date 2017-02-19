@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.ReflectionUtils;
@@ -54,11 +55,9 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 			public void doWith(Field field) throws IllegalArgumentException,
 					IllegalAccessException {
 				try {
-					Class<?> realObjectClass = field.getType();
-					String singletonName = realObjectClass.getCanonicalName()
-							+ field.getName();
+					String beanName = resolveBeanName(field);
 					Object singleton = findOrRegisterSingleton(applicationContext,
-							realObjectClass, singletonName);
+							field.getType(), beanName);
 
 					field.setAccessible(true);
 					field.set(suite, singleton);
@@ -76,6 +75,14 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 		});
 		
 		return autowiringCandidates;
+	}
+
+	private String resolveBeanName(Field field) {
+		Qualifier qualifierAnnotation = field.getAnnotation(Qualifier.class);
+		return qualifierAnnotation != null
+				? qualifierAnnotation.value()
+				: field.getType().getCanonicalName()
+					+ field.getName();
 	}
 
 	private Object findOrRegisterSingleton(

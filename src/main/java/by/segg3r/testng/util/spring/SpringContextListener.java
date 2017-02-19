@@ -12,6 +12,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.util.ReflectionUtils;
 import org.testng.IMethodInstance;
 import org.testng.ITestClass;
 import org.testng.ITestResult;
@@ -125,17 +126,35 @@ public class SpringContextListener implements TestClassListener {
 			throws Exception {
 		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
 		List<Object> autowiringCandidates = Lists.newArrayList();
-		
-		ContextConfiguration contextConfiguration = suite.getClass()
-				.getAnnotation(ContextConfiguration.class);
-		for (ContextConfigurationProcessor processor : CONTEXT_CONFIGURATION_PROCESSORS) {
-			ContextConfigurationProcessingResult processorResult = processor.process(applicationContext, Optional.ofNullable(contextConfiguration), suite);
-			autowiringCandidates.addAll(processorResult.getAutowiringCandidates());
+
+		Class<?> classHierarchyElement = suite.getClass();
+		while (classHierarchyElement != null) {
+			autowiringCandidates.addAll(
+					resolveSuiteHierarchyElementAutowiringCandidates(classHierarchyElement, applicationContext, suite));
+			for (Class<?> hierarchyInterfaceElement : classHierarchyElement.getInterfaces()) {
+				autowiringCandidates.addAll(
+						resolveSuiteHierarchyElementAutowiringCandidates(hierarchyInterfaceElement, applicationContext, suite));
+			}
+
+			classHierarchyElement = classHierarchyElement.getSuperclass();
 		}
-		
+
 		applicationContext.refresh();
 
 		return new ApplicationContextInitializationResult(applicationContext, autowiringCandidates);
+	}
+
+	private List<Object> resolveSuiteHierarchyElementAutowiringCandidates(Class<?> clazz, AnnotationConfigApplicationContext applicationContext, Object suite) {
+		List<Object> autowiringCandidates = Lists.newArrayList();
+		ContextConfiguration contextConfiguration = clazz
+				.getAnnotation(ContextConfiguration.class);
+		for (ContextConfigurationProcessor processor : CONTEXT_CONFIGURATION_PROCESSORS) {
+			ContextConfigurationProcessingResult processorResult = processor
+					.process(applicationContext, Optional.ofNullable(contextConfiguration), suite);
+			autowiringCandidates.addAll(processorResult.getAutowiringCandidates());
+		}
+
+		return autowiringCandidates;
 	}
 
 	private void processAutowiredAnnotations(Object suite,

@@ -3,6 +3,10 @@
 .project
 .settings/
 
+#Idea
+.idea/
+*.iml
+
 #Maven
 target/
 test-output/

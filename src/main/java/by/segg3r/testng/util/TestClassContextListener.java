@@ -4,7 +4,7 @@ import org.testng.IClassListener;
 import org.testng.IMethodInstance;
 import org.testng.ITestClass;
 
-public interface TestClassListener extends IClassListener, TestListener {
+public interface TestClassContextListener extends IClassListener, TestContextListener {
 
 	@Override
 	default void onBeforeClass(ITestClass testClass, IMethodInstance method) {

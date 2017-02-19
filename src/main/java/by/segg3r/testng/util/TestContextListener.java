@@ -4,7 +4,7 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
-public interface TestListener extends ITestListener {
+public interface TestContextListener extends ITestListener {
 
 	default void onBeforeTest(ITestResult testResult) {
 		return;

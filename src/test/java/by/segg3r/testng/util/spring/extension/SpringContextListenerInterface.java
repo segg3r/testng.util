@@ -6,5 +6,5 @@ import by.segg3r.testng.util.spring.ContextConfiguration;
 		configClasses = InterfaceConfiguration.class,
 		spies = InterfaceConfiguration.InterfaceSpiedService.class
 )
-public interface SpringContextListenerInterface {
+public interface SpringContextListenerInterface extends SpringContextListenerInterfaceParent {
 }

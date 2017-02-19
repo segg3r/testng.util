@@ -7,10 +7,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertNotNull;
 
-import by.segg3r.testng.util.spring.extension.InterfaceConfiguration;
-import by.segg3r.testng.util.spring.extension.ParentConfiguration;
-import by.segg3r.testng.util.spring.extension.SpringContextListenerInterface;
-import by.segg3r.testng.util.spring.extension.SpringContextListenerParent;
+import by.segg3r.testng.util.spring.extension.*;
 import org.mockito.Mock;
 import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +18,7 @@ import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.RealServ
 import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.Service;
 import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.SpiedService;
 
-@Listeners(SpringContextListener.class)
+@Listeners(SpringContextContextListener.class)
 @ContextConfiguration(
 		configClasses = TestApplicationContextConfiguration.class,
 		realObjects = RealService.class,
@@ -49,6 +46,9 @@ public class SpringContextListenerTest
 	private InterfaceConfiguration.InterfaceService interfaceService;
 	@Autowired
 	private InterfaceConfiguration.InterfaceSpiedService interfaceSpiedService;
+
+	@Autowired
+	private InterfaceParentConfiguration.InterfaceParentService interfaceParentService;
 
 	@Test(description = "should trigger initAnnotations")
 	public void testMockitoAnnotations() {
@@ -88,6 +88,13 @@ public class SpringContextListenerTest
 		assertFalse(mockUtil.isMock(interfaceService));
 
 		assertTrue(mockUtil.isSpy(interfaceSpiedService));
+	}
+
+	@Test(description = "should inject values from implemented interface hierarchy")
+	public void testInterfaceHierarchyConfiguraitonInjection() {
+		assertNotNull(interfaceParentService);
+		assertFalse(mockUtil.isSpy(interfaceParentService));
+		assertFalse(mockUtil.isMock(interfaceParentService));
 	}
 	
 	@Test(description = "intermediate test to setup mock")

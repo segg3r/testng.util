@@ -2,7 +2,6 @@ package by.segg3r.testng.util.spring;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mockito.Mockito;
@@ -10,24 +9,13 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.util.ReflectionUtils;
 import org.testng.IMethodInstance;
 import org.testng.ITestClass;
 import org.testng.ITestResult;
 
-import by.segg3r.testng.util.TestClassListener;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.ContextConfigurationProcessingResult;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.ContextConfigurationProcessor;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.JavaConfigClassesContextConfigurationProcessor;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.MockingAutowiringPostProcessorContextConfigurationProcessor;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.MocksContextConfigurationProcessor;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.RealObjectsContextConfigurationProcessor;
-import by.segg3r.testng.util.spring.contextconfigurationprocessor.SpiesContextConfigurationProcessor;
+import by.segg3r.testng.util.TestClassContextListener;
 import by.segg3r.testng.util.spring.exception.SpringContextListenerException;
-
-import com.google.common.collect.Lists;
 
 /**
  * 
@@ -49,21 +37,13 @@ import com.google.common.collect.Lists;
  * @author segg3r
  *
  */
-public class SpringContextListener implements TestClassListener {
-
-	private final static List<ContextConfigurationProcessor> CONTEXT_CONFIGURATION_PROCESSORS = Lists
-			.newArrayList(
-					new JavaConfigClassesContextConfigurationProcessor(),
-					new RealObjectsContextConfigurationProcessor(),
-					new SpiesContextConfigurationProcessor(),
-					new MocksContextConfigurationProcessor(),
-					new MockingAutowiringPostProcessorContextConfigurationProcessor());
+public class SpringContextContextListener implements TestClassContextListener {
 
 	private final Map<Object, GenericApplicationContext> applicationContexts;
 	private final Map<Object, Integer> invokedMethods;
 	private final MockUtil mockUtil;
 
-	public SpringContextListener() {
+	public SpringContextContextListener() {
 		this.applicationContexts = new ConcurrentHashMap<>();
 		this.mockUtil = new MockUtil();
 		this.invokedMethods = new ConcurrentHashMap<>();
@@ -78,7 +58,8 @@ public class SpringContextListener implements TestClassListener {
 					continue;
 				}
 				
-				ApplicationContextInitializationResult applicationContextInitializationResult = initializeApplicationContext(suite);
+				ApplicationContextInitializationResult applicationContextInitializationResult
+						= new SuiteApplicationContextBuilder(suite).build();
 				GenericApplicationContext applicationContext = applicationContextInitializationResult.getApplicationContext();
 				List<Object> autowiringCandidates = applicationContextInitializationResult.getAutowiringCandidates();
 				
@@ -120,41 +101,6 @@ public class SpringContextListener implements TestClassListener {
 				}
 			}
 		}
-	}
-
-	private ApplicationContextInitializationResult initializeApplicationContext(Object suite)
-			throws Exception {
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-		List<Object> autowiringCandidates = Lists.newArrayList();
-
-		Class<?> classHierarchyElement = suite.getClass();
-		while (classHierarchyElement != null) {
-			autowiringCandidates.addAll(
-					resolveSuiteHierarchyElementAutowiringCandidates(classHierarchyElement, applicationContext, suite));
-			for (Class<?> hierarchyInterfaceElement : classHierarchyElement.getInterfaces()) {
-				autowiringCandidates.addAll(
-						resolveSuiteHierarchyElementAutowiringCandidates(hierarchyInterfaceElement, applicationContext, suite));
-			}
-
-			classHierarchyElement = classHierarchyElement.getSuperclass();
-		}
-
-		applicationContext.refresh();
-
-		return new ApplicationContextInitializationResult(applicationContext, autowiringCandidates);
-	}
-
-	private List<Object> resolveSuiteHierarchyElementAutowiringCandidates(Class<?> clazz, AnnotationConfigApplicationContext applicationContext, Object suite) {
-		List<Object> autowiringCandidates = Lists.newArrayList();
-		ContextConfiguration contextConfiguration = clazz
-				.getAnnotation(ContextConfiguration.class);
-		for (ContextConfigurationProcessor processor : CONTEXT_CONFIGURATION_PROCESSORS) {
-			ContextConfigurationProcessingResult processorResult = processor
-					.process(applicationContext, Optional.ofNullable(contextConfiguration), suite);
-			autowiringCandidates.addAll(processorResult.getAutowiringCandidates());
-		}
-
-		return autowiringCandidates;
 	}
 
 	private void processAutowiredAnnotations(Object suite,

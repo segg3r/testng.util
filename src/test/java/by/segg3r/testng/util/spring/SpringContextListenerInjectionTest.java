@@ -14,7 +14,7 @@ import by.segg3r.testng.util.spring.annotations.Mocked;
 import by.segg3r.testng.util.spring.annotations.Real;
 import by.segg3r.testng.util.spring.annotations.Spied;
 
-@Listeners(SpringContextListener.class)
+@Listeners(SpringContextContextListener.class)
 public class SpringContextListenerInjectionTest extends SpringContextListenerInjectionParent {
 
 	@Real

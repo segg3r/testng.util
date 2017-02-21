@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@Listeners({SpringContextContextListener.class, PluggableListenerTest.DatabaseContextListener.class})
+@Listeners({SpringContextListener.class, PluggableListenerTest.DatabaseContextListener.class})
 public class PluggableListenerTest {
 
 	public static class Database {

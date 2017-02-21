@@ -6,11 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import by.segg3r.testng.util.spring.SpringContextContextListener;
+import by.segg3r.testng.util.spring.SpringContextListener;
 import org.springframework.beans.factory.annotation.Autowired;
 /**
  * 
- * If suite field is annotated with this annotation and suite class is annotated with {@link SpringContextContextListener @SpringListener},
+ * If suite field is annotated with this annotation and suite class is annotated with {@link SpringContextListener @SpringListener},
  * this field will be injected with spied instance of field declared class. Created bean will also be part of ApplicationContext.
  *
  * Supports Spring {@link org.springframework.beans.factory.annotation.Qualifier @Qualifier} annotation.

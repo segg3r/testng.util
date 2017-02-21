@@ -37,13 +37,13 @@ import by.segg3r.testng.util.spring.exception.SpringContextListenerException;
  * @author segg3r
  *
  */
-public class SpringContextContextListener implements TestClassContextListener {
+public class SpringContextListener implements TestClassContextListener {
 
 	private final Map<Object, GenericApplicationContext> applicationContexts;
 	private final Map<Object, Integer> invokedMethods;
 	private final MockUtil mockUtil;
 
-	public SpringContextContextListener() {
+	public SpringContextListener() {
 		this.applicationContexts = new ConcurrentHashMap<>();
 		this.mockUtil = new MockUtil();
 		this.invokedMethods = new ConcurrentHashMap<>();

@@ -18,7 +18,7 @@ import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.RealServ
 import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.Service;
 import by.segg3r.testng.util.spring.TestApplicationContextConfiguration.SpiedService;
 
-@Listeners(SpringContextContextListener.class)
+@Listeners(SpringContextListener.class)
 @ContextConfiguration(
 		configClasses = TestApplicationContextConfiguration.class,
 		realObjects = RealService.class,

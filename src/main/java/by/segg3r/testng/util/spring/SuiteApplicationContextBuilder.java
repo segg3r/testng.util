@@ -54,7 +54,7 @@ public class SuiteApplicationContextBuilder {
 		if (listenersAnnotation != null) {
 			Class<?>[] listenerClasses = listenersAnnotation.value();
 			for (Class<?> listenerClass : listenerClasses) {
-				if (!listenerClass.equals(SpringContextContextListener.class)) {
+				if (!listenerClass.equals(SpringContextListener.class)) {
 					results.add(getClassContextConfigurationWithOptions(listenerClass, WITH_INTERFACES));
 				}
 			}

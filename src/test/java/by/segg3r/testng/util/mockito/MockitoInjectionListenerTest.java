@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-@Listeners(MockitoInjectingListener.class)
+@Listeners(MockitoInjectingContextListener.class)
 public class MockitoInjectionListenerTest {
 
 	@Mock

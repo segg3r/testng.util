@@ -5,7 +5,7 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-@Listeners(SpringContextListener.class)
+@Listeners(SpringContextContextListener.class)
 public class SpringContextListenerNoAnnotationTest {
 
 	@Test(description = "should not fail if @ContextConfiguration annotation is not present")

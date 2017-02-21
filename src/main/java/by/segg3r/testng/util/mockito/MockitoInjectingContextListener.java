@@ -4,7 +4,7 @@ import org.testng.IMethodInstance;
 import org.testng.ITestClass;
 import org.testng.ITestResult;
 
-import by.segg3r.testng.util.TestClassListener;
+import by.segg3r.testng.util.TestClassContextListener;
 
 /**
  * 
@@ -16,7 +16,7 @@ import by.segg3r.testng.util.TestClassListener;
  * @author segg3r
  *
  */
-public class MockitoInjectingListener implements TestClassListener {
+public class MockitoInjectingContextListener implements TestClassContextListener {
 
 	@Override
 	public void onBeforeClass(ITestClass testClass, IMethodInstance method) {

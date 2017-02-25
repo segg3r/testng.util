@@ -23,7 +23,7 @@ Then it can be tested, using following testNG test suite:
 class ServiceTest {
   @Real
   Service service;
-  @Real
+  @Real @Qualifier("someQualifier")
   RealService realService;
   @Spied
   SpiedService spiedService;
@@ -39,3 +39,14 @@ It also supports defining required Application context using @Configuration clas
 ```
 
 Tests can be organized using hierarchy of classes and interfaces (e.g. your test suite can implement interface or extend class with @ContextConfiguration annotation).
+
+##MongoStartupListener
+Allows to test your Mongo repositories against [embedded Mongo instance](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo).
+
+```java
+@Listeners({SpringContextListener.class, MongoStartupListener.class})
+class Service {
+  @Autowired
+  MongoTemplate template;
+}
+```

@@ -1,0 +1,35 @@
+package by.segg3r.testng.util.mongo;
+
+import by.segg3r.testng.util.spring.SpringContextListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
+@Listeners({SpringContextListener.class, MongoStartupListener.class})
+public class MongoTest {
+
+	@Autowired
+	private MongoTemplate template;
+
+	@Test(description = "should be able to use mongo template")
+	public void testTemplate() {
+		template.save(new Entity());
+
+		assertEquals(template.findAll(Entity.class).size(), 1);
+	}
+
+	@Test(description = "should clean database after each test",
+		dependsOnMethods = "testTemplate")
+	public void testDatabaseClean() {
+		assertTrue(template.findAll(Entity.class).isEmpty());
+	}
+	
+	@Document(collection = "entities")
+	public static final class Entity {}
+
+}

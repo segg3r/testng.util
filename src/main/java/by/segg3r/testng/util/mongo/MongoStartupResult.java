@@ -13,6 +13,7 @@ public class MongoStartupResult {
 	private MongoTemplate template;
 	private String host;
 	private int port;
+	private String databaseName;
 
 	public MongoStartupResult() {
 	}
@@ -71,4 +72,12 @@ public class MongoStartupResult {
 		return this;
 	}
 
+	public String getDatabaseName() {
+		return databaseName;
+	}
+
+	public MongoStartupResult setDatabaseName(String databaseName) {
+		this.databaseName = databaseName;
+		return this;
+	}
 }

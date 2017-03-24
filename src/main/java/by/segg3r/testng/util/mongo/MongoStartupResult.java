@@ -11,47 +11,64 @@ public class MongoStartupResult {
 	private MongodProcess mongoProcess;
 	private MongoClient mongo;
 	private MongoTemplate template;
+	private String host;
+	private int port;
 
-	public MongoStartupResult(MongodExecutable executable,
-			MongodProcess mongoProcess, MongoClient mongo,
-			MongoTemplate template) {
-		super();
-		this.executable = executable;
-		this.mongoProcess = mongoProcess;
-		this.mongo = mongo;
-		this.template = template;
+	public MongoStartupResult() {
 	}
 
 	public MongodExecutable getExecutable() {
 		return executable;
 	}
 
-	public void setExecutable(MongodExecutable executable) {
+	public MongoStartupResult setExecutable(MongodExecutable executable) {
 		this.executable = executable;
+		return this;
 	}
 
 	public MongodProcess getMongoProcess() {
 		return mongoProcess;
 	}
 
-	public void setMongoProcess(MongodProcess mongoProcess) {
+	public MongoStartupResult setMongoProcess(MongodProcess mongoProcess) {
 		this.mongoProcess = mongoProcess;
+		return this;
 	}
 
 	public MongoClient getMongo() {
 		return mongo;
 	}
 
-	public void setMongo(MongoClient mongo) {
+	public MongoStartupResult setMongo(MongoClient mongo) {
 		this.mongo = mongo;
+		return this;
 	}
 
 	public MongoTemplate getTemplate() {
 		return template;
 	}
 
-	public void setTemplate(MongoTemplate template) {
+	public MongoStartupResult setTemplate(MongoTemplate template) {
 		this.template = template;
+		return this;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public MongoStartupResult setHost(String host) {
+		this.host = host;
+		return this;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public MongoStartupResult setPort(int port) {
+		this.port = port;
+		return this;
 	}
 
 }

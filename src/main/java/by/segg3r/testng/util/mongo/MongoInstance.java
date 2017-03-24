@@ -33,9 +33,14 @@ public class MongoInstance {
 	private static MongodProcess mongoProcess;
 	private static MongoClient mongo;
 	private static MongoTemplate template;
+	private static MongoStartupResult startupResult;
 
 	public static MongoTemplate get() {
 		return template;
+	}
+
+	public static MongoStartupResult getStartupResult() {
+		return startupResult;
 	}
 
 	public static MongoDbFactory getFactory() {
@@ -46,8 +51,9 @@ public class MongoInstance {
 		if (template == null) {
 			int port = findAvailablePort();
 			
-			MongoStartupResult mongoStartupResult = startMongo(port);
-			
+			MongoStartupResult mongoStartupResult = startMongo(MONGO_HOST, port);
+
+			startupResult = mongoStartupResult;
 			executable = mongoStartupResult.getExecutable();
 			mongoProcess = mongoStartupResult.getMongoProcess();
 			mongo = mongoStartupResult.getMongo();
@@ -107,7 +113,7 @@ public class MongoInstance {
 		return false;
 	}
 	
-	private static MongoStartupResult startMongo(int port) {
+	private static MongoStartupResult startMongo(String host, int port) {
 		MongodExecutable executable = null;
 		
 		try {
@@ -135,11 +141,17 @@ public class MongoInstance {
 			executable = runtime.prepare(mongoConfig);
 			MongodProcess mongoProcess = executable.start();
 	
-			MongoClient mongo = new MongoClient(MONGO_HOST, port);
+			MongoClient mongo = new MongoClient(host, port);
 			mongo.getDatabase(MONGO_DB_NAME);
 			MongoTemplate template = new MongoTemplate(mongo, MONGO_DB_NAME);
-			
-			return new MongoStartupResult(executable, mongoProcess, mongo, template);
+
+			return new MongoStartupResult()
+					.setExecutable(executable)
+					.setMongoProcess(mongoProcess)
+					.setMongo(mongo)
+					.setTemplate(template)
+					.setHost(host)
+					.setPort(port);
 		} catch (IOException e) {
 			if (executable != null) {
 				executable.stop();

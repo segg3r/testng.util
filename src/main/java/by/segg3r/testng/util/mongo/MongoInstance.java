@@ -151,7 +151,8 @@ public class MongoInstance {
 					.setMongo(mongo)
 					.setTemplate(template)
 					.setHost(host)
-					.setPort(port);
+					.setPort(port)
+					.setDatabaseName(MONGO_DB_NAME);
 		} catch (IOException e) {
 			if (executable != null) {
 				executable.stop();

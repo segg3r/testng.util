@@ -18,4 +18,9 @@ public class MongoInstanceConfiguration {
 		return MongoInstance.getFactory();
 	}
 
+	@Bean
+	public MongoStartupResult mongoStartupResult() {
+		return MongoInstance.getStartupResult();
+	}
+
 }

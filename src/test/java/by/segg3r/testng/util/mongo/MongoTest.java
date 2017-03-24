@@ -8,6 +8,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 @Listeners({SpringContextListener.class, MongoStartupListener.class})
@@ -15,6 +16,8 @@ public class MongoTest {
 
 	@Autowired
 	private MongoTemplate template;
+	@Autowired
+	private MongoStartupResult startupResult;
 
 	@Test(description = "should be able to use mongo template")
 	public void testTemplate() {
@@ -28,7 +31,19 @@ public class MongoTest {
 	public void testDatabaseClean() {
 		assertTrue(template.findAll(Entity.class).isEmpty());
 	}
-	
+
+	@Test(description = "should provide mongo startup result through application context")
+	public void testStartupResult() throws Exception {
+		assertNotNull(startupResult);
+
+		assertEquals(startupResult.getHost(), "127.0.0.1");
+		assertTrue(startupResult.getPort() >= 27117 && startupResult.getPort() <= 32000);
+		assertEquals(startupResult.getTemplate(), template);
+		assertNotNull(startupResult.getExecutable());
+		assertNotNull(startupResult.getMongo());
+		assertNotNull(startupResult.getMongoProcess());
+	}
+
 	@Document(collection = "entities")
 	public static final class Entity {}
 

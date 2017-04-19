@@ -1,6 +1,8 @@
 package by.segg3r.testng.util.spring;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.internal.util.MockUtil.isMock;
+import static org.mockito.internal.util.MockUtil.isSpy;
 import static org.testng.Assert.*;
 
 import by.segg3r.testng.util.spring.extension.SpringContextListenerInjectionParent;
@@ -29,11 +31,9 @@ public class SpringContextListenerInjectionTest extends SpringContextListenerInj
 	
 	@Test(description = "should correctly configure ApplicationContext from custom directives and inject fields")
 	public void testApplicationContextConfigurationAndInjection() {
-		MockUtil mockUtil = new MockUtil();
-		
-		assertTrue(service != null && !mockUtil.isMock(service) && !mockUtil.isSpy(service));
-		assertTrue(mockUtil.isSpy(spiedDao));
-		assertTrue(mockUtil.isMock(mockedDao));
+		assertTrue(service != null && !isMock(service) && !isSpy(service));
+		assertTrue(isSpy(spiedDao));
+		assertTrue(isMock(mockedDao));
 		
 		assertEquals(spiedDao, service.spiedDao);
 		assertEquals(mockedDao, service.mockedDao);
@@ -41,11 +41,9 @@ public class SpringContextListenerInjectionTest extends SpringContextListenerInj
 
 	@Test(description = "should correctly inject fields into parent classes")
 	public void testParentClassInjection() {
-		MockUtil mockUtil = new MockUtil();
-
-		assertTrue(parentService != null && !mockUtil.isMock(parentService) && !mockUtil.isSpy(parentService));
-		assertTrue(mockUtil.isSpy(parentSpiedService));
-		assertTrue(mockUtil.isMock(parentMockedService));
+		assertTrue(parentService != null && !isMock(parentService) && !isSpy(parentService));
+		assertTrue(isSpy(parentSpiedService));
+		assertTrue(isMock(parentMockedService));
 
 		assertEquals(parentApplicationContext, applicationContext);
 	}

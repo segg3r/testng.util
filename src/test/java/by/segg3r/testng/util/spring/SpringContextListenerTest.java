@@ -2,6 +2,8 @@ package by.segg3r.testng.util.spring;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.internal.util.MockUtil.isMock;
+import static org.mockito.internal.util.MockUtil.isSpy;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -27,8 +29,6 @@ public class SpringContextListenerTest
 		extends SpringContextListenerParent
 		implements SpringContextListenerInterface {
 
-	private MockUtil mockUtil = new MockUtil();
-
 	private Object object1 = new Object();
 	private Object object2 = new Object();
 	
@@ -52,7 +52,7 @@ public class SpringContextListenerTest
 
 	@Test(description = "should trigger initAnnotations")
 	public void testMockitoAnnotations() {
-		assertTrue(mockUtil.isMock(mockedObject));
+		assertTrue(isMock(mockedObject));
 	}
 	
 	@Test(description = "should inject values from application context")
@@ -60,41 +60,41 @@ public class SpringContextListenerTest
 		assertNotNull(service);
 		
 		assertNotNull(service.dao);
-		assertFalse(mockUtil.isMock(service.dao));
+		assertFalse(isMock(service.dao));
 		
 		assertNotNull(service.mockedService);
-		assertTrue(mockUtil.isMock(service.mockedService));
+		assertTrue(isMock(service.mockedService));
 		
 		assertNotNull(service.realService);
-		assertFalse(mockUtil.isMock(service.realService));
+		assertFalse(isMock(service.realService));
 		
 		assertNotNull(service.spiedService);
-		assertTrue(mockUtil.isSpy(service.spiedService));
+		assertTrue(isSpy(service.spiedService));
 	}
 
 	@Test(description = "should inject values from parent ContextConfiguration")
 	public void testParentConfigurationInjection() {
 		assertNotNull(parentService);
-		assertFalse(mockUtil.isSpy(parentService));
-		assertFalse(mockUtil.isMock(parentService));
+		assertFalse(isSpy(parentService));
+		assertFalse(isMock(parentService));
 
-		assertTrue(mockUtil.isSpy(parentSpiedService));
+		assertTrue(isSpy(parentSpiedService));
 	}
 
 	@Test(description = "should inject values from implemented interfaces")
 	public void testInterfaceConfigurationInjection() {
 		assertNotNull(interfaceService);
-		assertFalse(mockUtil.isSpy(interfaceService));
-		assertFalse(mockUtil.isMock(interfaceService));
+		assertFalse(isSpy(interfaceService));
+		assertFalse(isMock(interfaceService));
 
-		assertTrue(mockUtil.isSpy(interfaceSpiedService));
+		assertTrue(isSpy(interfaceSpiedService));
 	}
 
 	@Test(description = "should inject values from implemented interface hierarchy")
 	public void testInterfaceHierarchyConfiguraitonInjection() {
 		assertNotNull(interfaceParentService);
-		assertFalse(mockUtil.isSpy(interfaceParentService));
-		assertFalse(mockUtil.isMock(interfaceParentService));
+		assertFalse(isSpy(interfaceParentService));
+		assertFalse(isMock(interfaceParentService));
 	}
 	
 	@Test(description = "intermediate test to setup mock")

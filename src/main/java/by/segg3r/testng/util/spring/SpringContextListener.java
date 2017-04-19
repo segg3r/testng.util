@@ -17,8 +17,12 @@ import org.testng.ITestResult;
 import by.segg3r.testng.util.TestClassContextListener;
 import by.segg3r.testng.util.spring.exception.SpringContextListenerException;
 
+import static org.mockito.Mockito.reset;
+import static org.mockito.internal.util.MockUtil.isMock;
+import static org.mockito.internal.util.MockUtil.isSpy;
+
 /**
- * 
+ *
  * Listener, which instantiates Spring context. <br>
  * There are currently two ways of configure beans in this context: <br>
  * <br>
@@ -28,12 +32,12 @@ import by.segg3r.testng.util.spring.exception.SpringContextListenerException;
  * {@link by.segg3r.testng.util.spring.annotations.Real @Real},
  * {@link by.segg3r.testng.util.spring.annotations.Spied @Spied} and
  * {@link by.segg3r.testng.util.spring.annotations.Mocked @Mocked} annotations.
- * 
+ *
  * @see by.segg3r.testng.util.spring.ContextConfiguration
  * @see by.segg3r.testng.util.spring.annotations.Real
  * @see by.segg3r.testng.util.spring.annotations.Spied
  * @see by.segg3r.testng.util.spring.annotations.Mocked
- * 
+ *
  * @author segg3r
  *
  */
@@ -41,11 +45,9 @@ public class SpringContextListener implements TestClassContextListener {
 
 	private final Map<Object, GenericApplicationContext> applicationContexts;
 	private final Map<Object, Integer> invokedMethods;
-	private final MockUtil mockUtil;
 
 	public SpringContextListener() {
 		this.applicationContexts = new ConcurrentHashMap<>();
-		this.mockUtil = new MockUtil();
 		this.invokedMethods = new ConcurrentHashMap<>();
 	}
 
@@ -57,19 +59,19 @@ public class SpringContextListener implements TestClassContextListener {
 				if (applicationContexts.get(suite) != null) {
 					continue;
 				}
-				
+
 				ApplicationContextInitializationResult applicationContextInitializationResult
 						= new SuiteApplicationContextBuilder(suite).build();
 				GenericApplicationContext applicationContext = applicationContextInitializationResult.getApplicationContext();
 				List<Object> autowiringCandidates = applicationContextInitializationResult.getAutowiringCandidates();
-				
+
 				processAutowiredAnnotations(suite, applicationContext);
 				for (Object autowiringCandidate : autowiringCandidates) {
 					processAutowiredAnnotations(autowiringCandidate, applicationContext);
 				}
 				applicationContexts.put(suite, applicationContext);
 				invokedMethods.put(suite, testClass.getTestMethods().length);
-				
+
 				MockitoAnnotations.initMocks(suite);
 			}
 		} catch (Exception e) {
@@ -84,13 +86,13 @@ public class SpringContextListener implements TestClassContextListener {
 		if (!applicationContext.isActive()) {
 			return;
 		}
-		
+
 		invokedMethods.put(suite, invokedMethods.get(suite) - 1);
-		
+
 		Map<String, Object> beans = applicationContext.getBeansOfType(Object.class);
 		for (Object bean : beans.values()) {
-			if (mockUtil.isMock(bean) || mockUtil.isSpy(bean)) {
-				Mockito.reset(bean);
+			if (isMock(bean) || isSpy(bean)) {
+				reset(bean);
 			}
 		}
 	}

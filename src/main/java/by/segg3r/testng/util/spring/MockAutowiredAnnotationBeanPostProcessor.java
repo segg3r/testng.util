@@ -1,11 +1,6 @@
 package by.segg3r.testng.util.spring;
 
-import java.beans.PropertyDescriptor;
-import java.util.Optional;
-import java.util.Set;
-
 import org.mockito.Mockito;
-import org.mockito.internal.util.MockUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.TypeConverter;
@@ -17,10 +12,14 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.beans.PropertyDescriptor;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.mockito.internal.util.MockUtil.isMock;
+
 public class MockAutowiredAnnotationBeanPostProcessor extends AutowiredAnnotationBeanPostProcessor {
 
-	private static final MockUtil MOCK_UTIL = new MockUtil();
-	
 	private ApplicationContext applicationContext;
 	
 	public MockAutowiredAnnotationBeanPostProcessor(
@@ -45,7 +44,7 @@ public class MockAutowiredAnnotationBeanPostProcessor extends AutowiredAnnotatio
 	}
 
 	private boolean isIgnoringAutowiring(Object bean) {
-		return MOCK_UTIL.isMock(bean);
+		return isMock(bean);
 	}
 
 	private static final class MockProvidingListableBeanFactory extends DefaultListableBeanFactory {

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+import static org.mockito.internal.util.MockUtil.isMock;
+import static org.mockito.internal.util.MockUtil.isSpy;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -38,17 +40,15 @@ public class SpringContextListenerQualifierTest {
 
 	@Test(description = "should register multiple bean with different qualifiers")
 	public void testQualifiers() {
-		MockUtil mockUtil = new MockUtil();
-
 		assertEquals(service.realBean, realBean);
-		assertFalse(mockUtil.isSpy(service.realBean));
-		assertFalse(mockUtil.isMock(service.realBean));
+		assertFalse(isSpy(service.realBean));
+		assertFalse(isMock(service.realBean));
 
 		assertEquals(service.spiedBean, spiedBean);
-		assertTrue(mockUtil.isSpy(service.spiedBean));
+		assertTrue(isSpy(service.spiedBean));
 
 		assertEquals(service.mockedBean, mockedBean);
-		assertTrue(mockUtil.isMock(service.mockedBean));
+		assertTrue(isMock(service.mockedBean));
 	}
 
 }

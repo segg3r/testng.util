@@ -37,7 +37,7 @@ public class MongoTest {
 		assertNotNull(startupResult);
 
 		assertEquals(startupResult.getHost(), "127.0.0.1");
-		assertTrue(startupResult.getPort() >= 27117 && startupResult.getPort() <= 32000);
+		assertTrue(startupResult.getPort() > 0);
 		assertEquals(startupResult.getTemplate(), template);
 		assertEquals(startupResult.getDatabaseName(), "integration_test_db");
 		assertNotNull(startupResult.getExecutable());

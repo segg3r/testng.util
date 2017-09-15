@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 public class MongoInstance {
 
@@ -26,8 +27,6 @@ public class MongoInstance {
 
 	private static final String MONGO_HOST = "127.0.0.1";
 	private static final String MONGO_DB_NAME = "integration_test_db";
-	private static final int MONGO_PORT_RANGE_START = 27117;
-	private static final int MONGO_PORT_RANGE_END = 32000;
 
 	private static MongodExecutable executable;
 	private static MongodProcess mongoProcess;
@@ -74,16 +73,15 @@ public class MongoInstance {
 	}
 	
 	private static int findAvailablePort() {
-		for (int port = MONGO_PORT_RANGE_START; port <= MONGO_PORT_RANGE_END; port++) {
-			if (isPortAvailable(port)) {
-				return port;
-			}
+		try {
+			ServerSocket socket = new ServerSocket(0);
+			int port = socket.getLocalPort();
+
+			socket.close();
+			return port;
+		} catch (IOException e) {
+			throw new RuntimeException("Could not open server socket on any port.");
 		}
-		
-		String errorMessage = "Could not find free port in port range ("
-				+ MONGO_PORT_RANGE_START + "-" + MONGO_PORT_RANGE_END + ")";
-		LOG.error(errorMessage);
-		throw new RuntimeException(errorMessage);
 	}
 	
 	private static boolean isPortAvailable(int port) {

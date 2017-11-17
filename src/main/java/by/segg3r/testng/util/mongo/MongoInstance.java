@@ -132,7 +132,7 @@ public class MongoInstance {
 					.getInstance(runtimeConfig);
 	
 			IMongodConfig mongoConfig = new MongodConfigBuilder()
-					.version(Version.V3_0_2)
+					.version(Version.V3_2_0)
 					.net(new Net(port, Network.localhostIsIPv6()))
 					.build();
 	

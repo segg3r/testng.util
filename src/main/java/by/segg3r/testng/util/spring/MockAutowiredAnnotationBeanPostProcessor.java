@@ -65,9 +65,7 @@ public class MockAutowiredAnnotationBeanPostProcessor extends AutowiredAnnotatio
 			}
 			
 			Optional<Object> delegateDependency = resolveDelegatedDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
-			return delegateDependency.isPresent()
-					? delegateDependency.get()
-					: createMock(descriptor);
+			return delegateDependency.orElseGet(() -> createMock(descriptor));
 		}
 
 		private Optional<Object> resolveDelegatedDependency(
@@ -78,7 +76,6 @@ public class MockAutowiredAnnotationBeanPostProcessor extends AutowiredAnnotatio
 					typeConverter));
 			} catch (NoSuchBeanDefinitionException e) {
 				return Optional.empty();
-				
 			}
 		}
 

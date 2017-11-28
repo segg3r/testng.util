@@ -50,29 +50,20 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 			AnnotationConfigApplicationContext applicationContext, Object suite) {
 		List<Object> autowiringCandidates = Lists.newArrayList();
 		
-		ReflectionUtils.doWithFields(suite.getClass(), new FieldCallback() {
-			@Override
-			public void doWith(Field field) throws IllegalArgumentException,
-					IllegalAccessException {
-				try {
-					String beanName = resolveBeanName(field);
-					Object singleton = findOrRegisterSingleton(applicationContext,
-							field.getType(), beanName);
+		ReflectionUtils.doWithFields(suite.getClass(), field -> {
+			try {
+				String beanName = resolveBeanName(field);
+				Object singleton = findOrRegisterSingleton(applicationContext,
+						field.getType(), beanName);
 
-					field.setAccessible(true);
-					field.set(suite, singleton);
-					
-					autowiringCandidates.add(singleton);
-				} catch (Exception e) {
-					throw new ContextConfigurationProcessorException("Could not inject field " + field.getName(), e);
-				}
+				field.setAccessible(true);
+				field.set(suite, singleton);
+
+				autowiringCandidates.add(singleton);
+			} catch (Exception e) {
+				throw new ContextConfigurationProcessorException("Could not inject field " + field.getName(), e);
 			}
-		}, new FieldFilter() {
-			@Override
-			public boolean matches(Field field) {
-				return isInjectedField(field);
-			}
-		});
+		}, this::isInjectedField);
 		
 		return autowiringCandidates;
 	}
@@ -81,8 +72,7 @@ public abstract class ApplicationContextBeansContextConfigurationProcessor
 		Qualifier qualifierAnnotation = field.getAnnotation(Qualifier.class);
 		return qualifierAnnotation != null
 				? qualifierAnnotation.value()
-				: field.getType().getCanonicalName()
-					+ field.getName();
+				: field.getType().getCanonicalName();
 	}
 
 	private Object findOrRegisterSingleton(

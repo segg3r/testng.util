@@ -132,7 +132,7 @@ public class MongoInstance {
 					.getInstance(runtimeConfig);
 	
 			IMongodConfig mongoConfig = new MongodConfigBuilder()
-					.version(Version.V3_2_0)
+					.version(Version.V3_6_0)
 					.cmdOptions(new MongoCmdOptionsBuilder()
 						.useStorageEngine("mmapv1")
 						.build())

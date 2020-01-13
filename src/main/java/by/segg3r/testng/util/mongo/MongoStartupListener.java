@@ -2,10 +2,13 @@ package by.segg3r.testng.util.mongo;
 
 import by.segg3r.testng.util.SuiteTestListener;
 import by.segg3r.testng.util.spring.ContextConfiguration;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoIterable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.testng.IExecutionListener;
 import org.testng.ITestResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -55,9 +58,16 @@ public class MongoStartupListener implements IExecutionListener, SuiteTestListen
 
 	private List<String> getTestCollectionNames() {
 		MongoTemplate template = MongoInstance.get();
-		return template.getDb().getCollectionNames().stream()
-				.filter(collection -> !collection.startsWith(SYSTEM_COLLECTION_PREFIX))
-				.collect(toList());
+		MongoIterable<String> collectionIterator = template.getDb().listCollectionNames();
+		List<String> testCollectionNames = new ArrayList<>();
+		MongoCursor<String> cursor = collectionIterator.iterator();
+		while (cursor.hasNext()) {
+			String collectionName = cursor.next();
+			if (!collectionName.startsWith(SYSTEM_COLLECTION_PREFIX)) {
+				testCollectionNames.add(collectionName);
+			}
+		}
+		return testCollectionNames;
 	}
 
 }
